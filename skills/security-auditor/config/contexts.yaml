@@ -1,0 +1,201 @@
+# Project Context Definitions
+# Maps project types to relevant vulnerability categories
+# Used to filter out non-exploitable vulnerabilities
+
+contexts:
+  web-app:
+    description: "Web application (frontend or full-stack)"
+    indicators:
+      files:
+        - "next.config.*"
+        - "nuxt.config.*"
+        - "vite.config.*"
+        - "webpack.config.*"
+        - "angular.json"
+        - "svelte.config.*"
+      dependencies:
+        - "react|react-dom"
+        - "vue|nuxt"
+        - "angular|@angular/core"
+        - "svelte|sveltekit"
+        - "express|koa|fastify|hapi"
+        - "flask|django|fastapi"
+        - "gin|echo|fiber|chi"
+        - "rails|sinatra"
+        - "laravel|symfony"
+    relevant_vulnerabilities:
+      - injection           # SQL, NoSQL, Command, LDAP, XPath
+      - xss                 # Cross-site scripting
+      - csrf                # Cross-site request forgery
+      - auth_bypass         # Authentication issues
+      - ssrf                # Server-side request forgery
+      - path_traversal      # Directory traversal
+      - insecure_deserial   # Deserialization vulnerabilities
+      - open_redirect       # Unvalidated redirects
+      - session_fixation    # Session management issues
+      - cors_misconfiguration
+    irrelevant_vulnerabilities: []
+
+  api-service:
+    description: "Backend API service (REST, GraphQL, gRPC)"
+    indicators:
+      files:
+        - "openapi.*"
+        - "swagger.*"
+        - "*.proto"
+        - "schema.graphql"
+      dependencies:
+        - "express|fastify|koa|hapi|nestjs"
+        - "flask|fastapi|django-rest-framework"
+        - "gin|echo|fiber|chi|gorilla"
+        - "grpc|protobuf"
+        - "@apollo/server|graphql-yoga"
+    relevant_vulnerabilities:
+      - injection
+      - auth_bypass
+      - broken_access_control
+      - mass_assignment
+      - ssrf
+      - insecure_deserial
+      - rate_limiting
+      - api_key_exposure
+      - graphql_introspection
+      - graphql_depth_attack
+    irrelevant_vulnerabilities:
+      - xss                 # No browser context
+      - csrf                # API tokens, not cookies
+      - open_redirect       # No redirects typically
+
+  cli-tool:
+    description: "Command-line application"
+    indicators:
+      files:
+        - "bin/*"
+        - "cmd/*"
+      dependencies:
+        - "commander|yargs|oclif|inquirer"
+        - "argparse|click|typer|fire"
+        - "cobra|urfave/cli|kong"
+        - "clap|structopt"
+    relevant_vulnerabilities:
+      - command_injection
+      - path_traversal
+      - insecure_temp_files
+      - symlink_attack
+      - privilege_escalation
+      - hardcoded_credentials
+    irrelevant_vulnerabilities:
+      - xss
+      - csrf
+      - ssrf
+      - open_redirect
+      - cors_misconfiguration
+
+  library:
+    description: "Shared library or package"
+    indicators:
+      files:
+        - "index.d.ts"
+        - "lib/*"
+        - "src/index.*"
+      metadata:
+        - "private: false"  # Published package
+    relevant_vulnerabilities:
+      - prototype_pollution
+      - regex_dos
+      - insecure_defaults
+      - supply_chain
+      - dependency_confusion
+      - arbitrary_code_execution
+    irrelevant_vulnerabilities:
+      - xss                 # Context-dependent
+      - csrf
+      - ssrf
+
+  infrastructure:
+    description: "Infrastructure as Code, DevOps"
+    indicators:
+      files:
+        - "*.tf"
+        - "terraform/*"
+        - "pulumi/*"
+        - "cloudformation/*"
+        - "kubernetes/*"
+        - "k8s/*"
+        - "helm/*"
+        - "docker-compose.*"
+        - "Dockerfile*"
+        - ".github/workflows/*"
+        - "ansible/*"
+      dependencies: []
+    relevant_vulnerabilities:
+      - insecure_defaults
+      - overly_permissive_iam
+      - public_exposure
+      - unencrypted_storage
+      - missing_logging
+      - container_escape
+      - privileged_container
+      - secrets_in_config
+      - insecure_network
+    irrelevant_vulnerabilities:
+      - xss
+      - csrf
+      - sql_injection
+
+  microservice:
+    description: "Containerized microservice"
+    indicators:
+      files:
+        - "Dockerfile"
+        - "docker-compose.*"
+        - "k8s/*"
+        - "kubernetes/*"
+        - "helm/*"
+      dependencies: []
+    relevant_vulnerabilities:
+      - injection
+      - auth_bypass
+      - ssrf
+      - container_escape
+      - privileged_container
+      - secrets_in_env
+      - insecure_base_image
+      - missing_health_checks
+    irrelevant_vulnerabilities: []
+
+# Vulnerability category to CWE/Semgrep rule mapping
+vulnerability_mappings:
+  injection:
+    cwes: [89, 78, 90, 91, 643, 652]
+    semgrep_tags: ["sql-injection", "command-injection", "ldap-injection", "nosql-injection"]
+  xss:
+    cwes: [79, 80]
+    semgrep_tags: ["xss", "reflected-xss", "stored-xss", "dom-xss"]
+  csrf:
+    cwes: [352]
+    semgrep_tags: ["csrf"]
+  auth_bypass:
+    cwes: [287, 306, 307, 384, 613]
+    semgrep_tags: ["auth", "authentication", "jwt", "session"]
+  ssrf:
+    cwes: [918]
+    semgrep_tags: ["ssrf", "server-side-request-forgery"]
+  path_traversal:
+    cwes: [22, 23, 36, 73]
+    semgrep_tags: ["path-traversal", "directory-traversal"]
+  insecure_deserial:
+    cwes: [502]
+    semgrep_tags: ["deserialization", "insecure-deserialization"]
+  command_injection:
+    cwes: [78, 77]
+    semgrep_tags: ["command-injection", "os-command-injection"]
+  hardcoded_credentials:
+    cwes: [798, 259]
+    semgrep_tags: ["hardcoded-credentials", "hardcoded-secret", "hardcoded-password"]
+  prototype_pollution:
+    cwes: [1321]
+    semgrep_tags: ["prototype-pollution"]
+  regex_dos:
+    cwes: [1333, 400]
+    semgrep_tags: ["redos", "regex-dos"]

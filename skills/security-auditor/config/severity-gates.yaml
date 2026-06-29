@@ -1,0 +1,102 @@
+# Severity Gates Configuration
+# Defines what blocks deployment and what is informational
+
+gates:
+  # CRITICAL: Must be fixed before deployment
+  # Blocks deployment if ANY critical finding exists in scope
+  critical:
+    action: block
+    message: "CRITICAL vulnerabilities found. Deployment blocked until fixed."
+    requires_acknowledgment: false  # Cannot bypass
+    applies_to:
+      - in_scope: true              # Only in deployment scope
+      - exploitable: true           # Must be exploitable in context
+    examples:
+      - "SQL injection in production API endpoint"
+      - "Hardcoded secrets in committed code"
+      - "Remote code execution vulnerability"
+      - "Authentication bypass"
+
+  # HIGH: Strongly recommended to fix
+  # Warns but allows deployment with acknowledgment
+  high:
+    action: warn
+    message: "HIGH severity vulnerabilities found. Strongly recommended to fix before deployment."
+    requires_acknowledgment: true   # User must acknowledge to proceed
+    applies_to:
+      - in_scope: true
+      - exploitable: true
+    examples:
+      - "Sensitive data exposure"
+      - "Broken access control"
+      - "Security misconfiguration"
+
+  # MEDIUM: Should be addressed
+  # Informational, included in report
+  medium:
+    action: inform
+    message: "MEDIUM severity vulnerabilities found. Consider addressing in next iteration."
+    requires_acknowledgment: false
+    applies_to:
+      - in_scope: true
+    examples:
+      - "Missing security headers"
+      - "Verbose error messages"
+      - "Outdated dependencies (non-critical)"
+
+  # LOW: Best practices
+  # Informational only
+  low:
+    action: inform
+    message: "LOW severity findings detected. Best practice improvements available."
+    requires_acknowledgment: false
+    applies_to:
+      - in_scope: true
+    examples:
+      - "Code quality issues with security implications"
+      - "Deprecated function usage"
+      - "Missing input validation (non-exploitable)"
+
+# Scope rules for monorepos
+scope_rules:
+  # What counts as "in scope" for a scoped audit
+  in_scope:
+    - target_package: true          # The package being deployed
+    - direct_dependency: true       # Direct workspace dependencies
+    - transitive_dependency: true   # Transitive workspace dependencies
+  
+  # What is "out of scope" (reported but doesn't block)
+  out_of_scope:
+    - unrelated_packages: true      # Other packages in monorepo
+    - dev_dependencies: true        # devDependencies (unless in production bundle)
+    - test_files: true              # Test code (unless integration tests)
+
+# Exploitability assessment
+exploitability:
+  # Factors that increase exploitability
+  high_exploitability:
+    - user_input_flows_to_sink: true
+    - publicly_accessible_endpoint: true
+    - no_authentication_required: true
+    - default_configuration: true
+  
+  # Factors that reduce exploitability
+  low_exploitability:
+    - internal_only_endpoint: true
+    - requires_admin_access: true
+    - behind_vpn: true
+    - test_environment_only: true
+
+# Trivy severity mapping
+trivy_severity_map:
+  CRITICAL: critical
+  HIGH: high
+  MEDIUM: medium
+  LOW: low
+  UNKNOWN: low
+
+# Semgrep severity mapping
+semgrep_severity_map:
+  ERROR: critical
+  WARNING: high
+  INFO: medium

@@ -1,0 +1,19 @@
+{
+  "$schema": "https://opencode.ai/tui.json",
+  "keybinds": {
+    "sidebar_toggle": "ctrl+b",
+    "leader": "ctrl+x"
+  },
+  "scroll_acceleration": {
+    "enabled": true
+  },
+  "attention": {
+    "enabled": true,
+    "notifications": true,
+    "sound": true,
+    "volume": 0.4
+  },
+  "mouse": true,
+  "diff_style": "auto",
+  "scroll_speed": 3
+}

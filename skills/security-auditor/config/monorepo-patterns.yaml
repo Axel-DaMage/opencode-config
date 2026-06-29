@@ -1,0 +1,156 @@
+# Monorepo Detection Patterns
+# Used to identify monorepo structure and resolve package dependencies
+
+patterns:
+  # Node.js ecosystem
+  npm-workspaces:
+    description: "npm/yarn/pnpm workspaces"
+    detection:
+      files:
+        - "package.json"
+      json_keys:
+        - "workspaces"
+        - "workspaces.packages"
+    workspace_resolution:
+      command: "npm query .workspace 2>/dev/null || yarn workspaces list --json 2>/dev/null || pnpm list -r --json 2>/dev/null"
+      fallback: "jq -r '.workspaces | if type == \"array\" then .[] else .packages[]? // empty end' package.json 2>/dev/null"
+    dependency_resolution:
+      # Get dependencies of a specific package
+      command: "npm ls --json --prefix {package_path} 2>/dev/null | jq -r '.dependencies | keys[]' 2>/dev/null"
+
+  turborepo:
+    description: "Turborepo monorepo"
+    detection:
+      files:
+        - "turbo.json"
+    workspace_resolution:
+      command: "turbo ls --output=json 2>/dev/null | jq -r '.packages[].name'"
+      fallback: "cat turbo.json | jq -r '.pipeline | keys[]' 2>/dev/null"
+    dependency_resolution:
+      command: "turbo run build --dry-run=json --filter={package} 2>/dev/null | jq -r '.packages[]'"
+
+  nx:
+    description: "Nx monorepo"
+    detection:
+      files:
+        - "nx.json"
+        - "project.json"
+    workspace_resolution:
+      command: "nx show projects --json 2>/dev/null"
+    dependency_resolution:
+      command: "nx graph --file=stdout 2>/dev/null | jq -r '.graph.dependencies[\"{package}\"][]?.target'"
+
+  lerna:
+    description: "Lerna monorepo"
+    detection:
+      files:
+        - "lerna.json"
+    workspace_resolution:
+      command: "lerna list --json 2>/dev/null | jq -r '.[].name'"
+      fallback: "cat lerna.json | jq -r '.packages[]' 2>/dev/null"
+    dependency_resolution:
+      command: "lerna ls --scope={package} --include-dependencies --json 2>/dev/null | jq -r '.[].name'"
+
+  # Go ecosystem
+  go-workspace:
+    description: "Go workspace (go.work)"
+    detection:
+      files:
+        - "go.work"
+    workspace_resolution:
+      command: "go list -m -json all 2>/dev/null | jq -r '.Path'"
+      fallback: "grep -E '^\\s+use ' go.work | awk '{print $2}'"
+    dependency_resolution:
+      command: "go list -m -json ./... 2>/dev/null | jq -r '.Deps[]?'"
+
+  go-modules:
+    description: "Multiple Go modules in subdirectories"
+    detection:
+      files:
+        - "**/go.mod"
+      min_count: 2
+    workspace_resolution:
+      command: "find . -name 'go.mod' -exec dirname {} \\;"
+    dependency_resolution:
+      command: "cd {package_path} && go list -m -json all 2>/dev/null | jq -r '.Path'"
+
+  # Python ecosystem
+  python-monorepo:
+    description: "Python monorepo (multiple pyproject.toml)"
+    detection:
+      files:
+        - "**/pyproject.toml"
+      min_count: 2
+    workspace_resolution:
+      command: "find . -name 'pyproject.toml' -exec dirname {} \\;"
+    dependency_resolution:
+      command: "cd {package_path} && python -c \"import tomllib; print('\\n'.join(tomllib.load(open('pyproject.toml','rb')).get('project',{}).get('dependencies',[])))\""
+
+  poetry-monorepo:
+    description: "Poetry monorepo"
+    detection:
+      files:
+        - "pyproject.toml"
+      toml_keys:
+        - "tool.poetry.packages"
+    workspace_resolution:
+      command: "poetry show --tree 2>/dev/null | grep -E '^[a-z]' | awk '{print $1}'"
+    dependency_resolution:
+      command: "cd {package_path} && poetry show --tree 2>/dev/null"
+
+  # Rust ecosystem  
+  cargo-workspace:
+    description: "Cargo workspace"
+    detection:
+      files:
+        - "Cargo.toml"
+      toml_keys:
+        - "workspace.members"
+    workspace_resolution:
+      command: "cargo metadata --no-deps --format-version 1 2>/dev/null | jq -r '.workspace_members[]'"
+    dependency_resolution:
+      command: "cargo tree -p {package} --prefix none 2>/dev/null | awk '{print $1}' | sort -u"
+
+# Common monorepo directory conventions
+directory_conventions:
+  apps:
+    - "apps/*"
+    - "applications/*"
+    - "services/*"
+  packages:
+    - "packages/*"
+    - "libs/*"
+    - "libraries/*"
+    - "modules/*"
+    - "shared/*"
+  infrastructure:
+    - "infra/*"
+    - "infrastructure/*"
+    - "terraform/*"
+    - "deploy/*"
+  tools:
+    - "tools/*"
+    - "scripts/*"
+    - "internal/*"
+
+# Scope resolution strategies
+scope_strategies:
+  # Resolve all dependencies of a package
+  resolve_dependencies:
+    description: "Find all packages that the target depends on"
+    include:
+      - target_package
+      - workspace_dependencies
+      - shared_packages
+    exclude:
+      - dev_dependencies_of_dependencies
+      - unrelated_packages
+
+  # Resolve dependents (reverse dependencies)
+  resolve_dependents:
+    description: "Find all packages that depend on the target"
+    include:
+      - target_package
+      - packages_depending_on_target
+    exclude:
+      - transitive_dependents

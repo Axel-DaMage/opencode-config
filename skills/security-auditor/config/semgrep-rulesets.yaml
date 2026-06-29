@@ -1,0 +1,184 @@
+# Semgrep Ruleset Configuration
+# Curated rule sets per project context
+
+# Default rulesets applied to all projects
+default_rulesets:
+  - "p/security-audit"
+  - "p/secrets"
+  - "p/owasp-top-ten"
+
+# Context-specific rulesets
+context_rulesets:
+  web-app:
+    javascript:
+      - "p/javascript"
+      - "p/react"
+      - "p/nextjs"
+      - "p/nodejs"
+      - "p/express"
+      - "p/xss"
+      - "p/jwt"
+    typescript:
+      - "p/typescript"
+      - "p/react"
+      - "p/nextjs"
+      - "p/nodejs"
+      - "p/express"
+      - "p/xss"
+      - "p/jwt"
+    python:
+      - "p/python"
+      - "p/flask"
+      - "p/django"
+      - "p/xss"
+      - "p/sql-injection"
+    go:
+      - "p/golang"
+      - "p/gin"
+      - "p/sql-injection"
+    ruby:
+      - "p/ruby"
+      - "p/rails"
+      - "p/xss"
+    php:
+      - "p/php"
+      - "p/laravel"
+      - "p/symfony"
+      - "p/wordpress"
+
+  api-service:
+    javascript:
+      - "p/nodejs"
+      - "p/express"
+      - "p/jwt"
+      - "p/sql-injection"
+      - "p/graphql"
+    typescript:
+      - "p/typescript"
+      - "p/nodejs"
+      - "p/express"
+      - "p/jwt"
+      - "p/sql-injection"
+      - "p/graphql"
+    python:
+      - "p/python"
+      - "p/flask"
+      - "p/fastapi"
+      - "p/django"
+      - "p/sql-injection"
+    go:
+      - "p/golang"
+      - "p/gin"
+      - "p/sql-injection"
+      - "p/grpc"
+    java:
+      - "p/java"
+      - "p/spring"
+      - "p/sql-injection"
+
+  cli-tool:
+    javascript:
+      - "p/nodejs"
+      - "p/command-injection"
+    typescript:
+      - "p/typescript"
+      - "p/nodejs"
+      - "p/command-injection"
+    python:
+      - "p/python"
+      - "p/command-injection"
+    go:
+      - "p/golang"
+      - "p/command-injection"
+    rust:
+      - "p/rust"
+      - "p/command-injection"
+
+  library:
+    javascript:
+      - "p/javascript"
+      - "p/nodejs"
+      - "p/supply-chain"
+    typescript:
+      - "p/typescript"
+      - "p/supply-chain"
+    python:
+      - "p/python"
+      - "p/supply-chain"
+    go:
+      - "p/golang"
+      - "p/supply-chain"
+
+  infrastructure:
+    terraform:
+      - "p/terraform"
+      - "p/terraform-aws"
+      - "p/terraform-gcp"
+      - "p/terraform-azure"
+    docker:
+      - "p/dockerfile"
+      - "p/docker-compose"
+    kubernetes:
+      - "p/kubernetes"
+      - "p/helm"
+    github-actions:
+      - "p/github-actions"
+    ci-cd:
+      - "p/ci"
+
+  microservice:
+    docker:
+      - "p/dockerfile"
+      - "p/docker-compose"
+    kubernetes:
+      - "p/kubernetes"
+      - "p/helm"
+    # Plus language-specific from api-service
+
+# Severity overrides
+# Some rules should have different severity in different contexts
+severity_overrides:
+  # Missing rate limiting is CRITICAL for public APIs
+  - rule: "missing-rate-limiting"
+    context: "api-service"
+    override_severity: "critical"
+  
+  # Hardcoded credentials always CRITICAL
+  - rule: "hardcoded-credentials"
+    context: "*"
+    override_severity: "critical"
+  
+  # SQL injection always CRITICAL for web/API
+  - rule: "sql-injection"
+    context: ["web-app", "api-service"]
+    override_severity: "critical"
+
+# Rules to exclude (false positive prone or not relevant)
+excluded_rules:
+  # Too noisy in development
+  - "generic.secrets.security.detected-generic-secret.detected-generic-secret"
+  # Example files often trigger
+  - "*example*"
+  - "*sample*"
+  - "*test*"  # Excluded for production scans, can be enabled for test audits
+
+# Custom rules directory (if you have organization-specific rules)
+custom_rules_dir: null  # Set to path like "./security-rules/" if you have custom rules
+
+# Performance tuning
+performance:
+  # Maximum file size to scan (in bytes)
+  max_file_size: 5242880  # 5MB
+  # Timeout per file (in seconds)
+  timeout_per_file: 30
+  # Number of parallel jobs
+  jobs: 4
+  # Exclude patterns for performance
+  exclude_patterns:
+    - "**/node_modules/**"
+    - "**/vendor/**"
+    - "**/.git/**"
+    - "**/dist/**"
+    - "**/build/**"
+    - "**/*.min.js"
+    - "**/*.bundle.js"

@@ -1,0 +1,6 @@
+antigravity-accounts.json
+*.key
+.env
+.secrets/
+auth.json
+kv.json
