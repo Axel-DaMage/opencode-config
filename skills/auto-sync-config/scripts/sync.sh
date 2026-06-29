@@ -4,6 +4,11 @@ if [ ! -d "$REPO_PATH" ]; then
   REPO_PATH="$HOME/Documentos/Repos/opencode-config"
 fi
 
+# Control de seguridad: Verificar si el repo existe y es un repositorio Git válido
+if [ ! -d "$REPO_PATH/.git" ]; then
+  exit 0
+fi
+
 # Sincronizar excluyendo tokens y archivos temporales
 rsync -a --exclude 'antigravity-accounts.json' \
          --exclude '.secrets' \
