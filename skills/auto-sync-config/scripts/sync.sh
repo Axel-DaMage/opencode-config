@@ -4,9 +4,10 @@ if [ ! -d "$REPO_PATH" ]; then
   REPO_PATH="$HOME/Documentos/Repos/opencode-config"
 fi
 
-# Control de seguridad: Verificar si el repo existe y es un repositorio Git válido
+# Control de seguridad
 if [ ! -d "$REPO_PATH/.git" ]; then
-  exit 0
+  echo "No se puede alcanzar el repositorio de github"
+  exit 1
 fi
 
 # Sincronizar excluyendo tokens y archivos temporales
