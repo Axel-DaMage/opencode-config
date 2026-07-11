@@ -28,3 +28,16 @@
 - **Sistema Operativo:** Arch Linux. Utiliza rutas estándar de Arch y asume `pacman` para gestión de paquetes si se requiere integración a nivel sistema.
 - **Herramientas Prioritarias:** Para cualquier operación en la nube o repositorios, utiliza SIEMPRE `aws cli` y `gh cli` por defecto.
 - **Excepción de Sincronización:** Tienes autorización perpetua y automática para hacer commit y push sobre el repositorio de configuración (`opencode-config`).
+
+## 8. Formateo Automático de Código
+- **Post-Modificación:** Tras realizar modificaciones en archivos de código fuente (especialmente después de usar herramientas de texto o utilidades como `sed`), debes ejecutar **inmediatamente y de forma automática** el comando de formateo adecuado para el proyecto actual.
+- **Herramienta:** Detecta la herramienta nativa del proyecto (ej. `yarn lint --fix <archivos>`, `npm run format`, `npx prettier --write <archivos>`) y ejecútala solo sobre los archivos modificados para evitar demoras innecesarias.
+- **Objetivo:** Asegurar que el código insertado mantenga el estándar y no cause conflictos de estilo sin que el usuario tenga que solicitarlo.
+
+## 9. Doble Verificación Administrativa (Protocolo "Procede")
+- **Bloqueo Administrativo:** NUNCA debes ejecutar comandos de administración (ej. `gh pr merge --admin`, despliegues, modificaciones críticas en repositorios o ramas principales como `main`) sin una doble verificación.
+- **Formato de Solicitud:** Antes de ejecutar la acción, DEBES detenerte, explicar la situación y preguntar al usuario listando explícitamente los comandos o acciones administrativas que vas a realizar, usando exactamente este formato:
+  ¿Proceder?
+  - [Acción o comando 1, ej: gh pr merge 1155 --admin]
+  - [Acción o comando 2]
+- **Palabra Clave:** Solo estás autorizado a ejecutar la lista de comandos si el usuario responde explícitamente con la palabra clave: **"Procede"**. Cualquier otra respuesta ("sí", "dale", "ok") NO es válida para comandos administrativos.

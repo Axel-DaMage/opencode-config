@@ -7,6 +7,9 @@
     "log-sanitizer",
     "opencode-mem"
   ],
+  "context": {
+    "compactionThreshold": 65536
+  },
   "theme": "system",
   "mcp": {
     "context7": {
