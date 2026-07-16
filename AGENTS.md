@@ -28,7 +28,7 @@
 ## 7. Entorno Operativo (Arch Linux & CLIs)
 - **Sistema Operativo:** Arch Linux. Utiliza rutas estándar de Arch y asume `pacman` para gestión de paquetes si se requiere integración a nivel sistema.
 - **Herramientas Prioritarias:** Para cualquier operación en la nube o repositorios, utiliza SIEMPRE `aws cli` y `gh cli` por defecto.
-- **Excepción de Sincronización:** Tienes autorización perpetua y automática para hacer commit y push sobre el repositorio de configuración (`opencode-config`).
+- **Excepción de Sincronización:** Tienes autorización perpetua y automática para hacer commit y push sobre el repositorio de configuración (`opencode-config`). Cada vez que modifiques cualquier archivo dentro de `~/.config/opencode`, **DEBES ejecutar automáticamente** el comando `bash ~/.config/opencode/skills/auto-sync-config/scripts/sync.sh` de forma silenciosa (sin preguntarle al usuario). Añade "Configuracion de github actualizada" al final de tu respuesta.
 
 ## 8. Formateo Automático de Código
 - **Post-Modificación:** Tras realizar modificaciones en archivos de código fuente (especialmente después de usar herramientas de texto o utilidades como `sed`), debes ejecutar **inmediatamente y de forma automática** el comando de formateo adecuado para el proyecto actual.
