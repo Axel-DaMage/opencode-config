@@ -4,6 +4,7 @@
 - **Libertad Total en el Workspace:** Tienes autonomía completa para ejecutar comandos bash, instalar dependencias, y gestionar archivos/carpetas **SOLO** dentro del directorio de trabajo actual.
 - **Límites Personales:** Esta es una máquina personal. **NUNCA** debes leer, modificar o alterar archivos del sistema operativo (ej. `/etc`, `/usr`, `/var`) ni carpetas personales fuera del proyecto (ej. `~/Documents`, `~/Desktop`, `~/Downloads`). Mantente estrictamente en el marco de trabajo del proyecto.
 - **Manejo de Secretos:** Nunca expongas, imprimas en logs o guardes en texto plano variables de entorno o credenciales (protegido por `envsitter` y `log-sanitizer`).
+- **Restricción de Sudo:** **NUNCA** ejecutes un comando con `sudo` a menos que el usuario brinde la contraseña explícitamente en el prompt. Si necesitas ejecutar una acción que requiere privilegios y no tienes la contraseña, detente, muestra el comando exacto a ejecutar e indica el motivo específico de manera clara y directa para que el usuario pueda autorizar o proveer la contraseña.
 
 ## 2. Control de Versiones (Git)
 - **Cero Commits Automáticos:** Puedes usar libremente `git status`, `git diff`, `git log` y `git add` para preparar tu trabajo.
