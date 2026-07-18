@@ -93,7 +93,7 @@
    //   GitHub Copilot:            "opencodeProvider": "github-copilot",  "opencodeModel": "gpt-4o-mini"
    //
    "opencodeProvider": "google",
-   "opencodeModel": "gemini-2.5-flash",
+   "opencodeModel": "antigravity-gemini-3.1-pro",
 
    // ============================================
    // Auto-Capture Settings (USES OPENCODE PROVIDER)
