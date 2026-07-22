@@ -5,10 +5,6 @@
   },
   "codeExecution": {
     "script_dir": ".kiro/scripts",
-    "jupyter": {
-      "baseUrl": "http://localhost:8888",
-      "token": "kiro-secret-token"
-    },
     "env": {
     }
   }
