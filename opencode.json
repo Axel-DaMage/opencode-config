@@ -5,7 +5,8 @@
     "opencode-antigravity-auth@beta",
     "envsitter",
     "log-sanitizer",
-    "opencode-mem"
+    "opencode-mem",
+    "@oh-my-kiro/oh-my-kiro"
   ],
   "theme": "system",
   "mcp": {
